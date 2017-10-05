@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>vlan bcast levels</title>
+<style type="text/css">
+body {
+  background-color: #000;
+  color: #fff;
+  font-family: Courier;
+  font-size: 13px;
+  text-rendering: optimizeLegibility;
+}
+.table-fill {
+  border-collapse: collapse;
+  width: 180px;
+  padding: 5px;
+  text-align: left;
+}
+
+.table {
+  border-spacing: 10px;
+  border-collapse: separate;
+}
+
+td.alert {
+  background: #F36 !important;
+  color: #FFF;
+}
+
+#div_1, #div_2, #div_3{
+    width:180px;
+    /*height:100px;*/
+    /*border:1px solid #333;*/
+    margin-right:0px;
+    float:left;
+}
+</style>
+</head>
+
+<body>
+<p>VLAN  Broadcast Storm Monitor v.0.2<br>
+  Listening on network-dev (192.168.101.15) server int: p4p2 jen core int: tg.4.21</p>
+<div id="div_1"></div><div id="div_2"></div><div id="div_3"></div><canvas id="mycanvas" width="800" height="100"></canvas>
+<script src="/socket.io/socket.io.js"></script> 
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script> 
+<script type="text/javascript" src="smoothie.js"></script>
+<script>
+
+// Data
+var line1 = new TimeSeries();
+var smoothie = new SmoothieChart();
+smoothie.streamTo(document.getElementById("mycanvas"), 1000);
+
+smoothie.addTimeSeries(line1,{ strokeStyle:'rgb(0, 255, 0)', fillStyle:'rgba(0, 255, 0, 0.4)', lineWidth:1 });
+
+var socket = io();
+
+socket.on('1secavg', function(msg){
+    var html = '<table class="table-fill">';
+        html +='<thead><tr><th width="50%">VLAN</th><th width="50%">PPS</th></tr><thead>';
+
+        $.each(msg, function(k, val) {
+
+	if(k == "0232"){
+	
+	line1.append(new Date().getTime(), val);
+	
+	}
+
+            html += '<tr>';
+            if(val > 79){
+                html += '<td class="alert" >' + k + '</td>';
+                html += '<td class="alert" >' + val + '</td>';
+            }else
+            {
+                html += '<td>' + k + '</td>';
+                html += '<td>' + val + '</td>';
+            }
+            html += '</tr>';
+        })
+    html += '</table>';
+
+    $('#div_1').html(html);
+  });
+socket.on('30secavg', function(msg){
+    var html = '<table class="table-fill">';
+        html +='<thead><tr><th width="50%">VLAN</th><th width="50%">30sec avg</th></tr><thead>';
+        $.each(msg, function(k, val) {
+            html += '<tr>';
+            if(val > 79){
+                html += '<td class="alert" >' + k + '</td>';
+                html += '<td class="alert" >' + val + '</td>';
+            }else
+            {
+                html += '<td>' + k + '</td>';
+                html += '<td>' + val + '</td>';
+            }
+            html += '</tr>';
+        })
+    html += '</table>';
+
+    $('#div_2').html(html);
+  });
+socket.on('300secavg', function(msg){
+    var html = '<table class="table-fill">';
+        html +='<thead><tr><th width="50%">VLAN</th><th width="50%">5min avg </th></tr><thead>';
+        $.each(msg, function(k, val) {
+            html += '<tr>';
+            if(val > 79){
+                html += '<td class="alert" >' + k + '</td>';
+                html += '<td class="alert" >' + val + '</td>';
+            }else
+            {
+                html += '<td>' + k + '</td>';
+                html += '<td>' + val + '</td>';
+            }
+            html += '</tr>';
+        })
+    html += '</table>';
+
+    $('#div_3').html(html);
+  });
+
+</script>
+</body>
+</html>
+
