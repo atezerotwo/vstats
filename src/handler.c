@@ -5,6 +5,9 @@
 #include "graphite-client.h"
 #include <curl/curl.h>
 #include "jWrite.h"
+#include <arpa/inet.h>
+
+
 
 #define VLAN_VID_MASK	0x0fff		/* VLAN Identifier */
 #define ETHER_ADDR_LEN	6
